@@ -11,6 +11,8 @@ import ucsc.cmb.ac.lk.projectPlaner.repositories.ProjectRepository;
 public class ProjectService {
     @Autowired
     private ProjectRepository projectRepository;
+
+
     public Project saveOrUpdateProject(Project project){
         try {
             project.setProjectIdentifier(project.getProjectIdentifier().toUpperCase());
@@ -27,4 +29,15 @@ public class ProjectService {
 
         return project;
     }
+    public Iterable<Project> findAllProject(){
+        return projectRepository.findAll();
+    }
+    public void deleteProjectByIdentifier(String projectId){
+        Project project=projectRepository.findByProjectIdentifier(projectId);
+        if(project ==null){
+            throw new ProjectIdException("cannot find project with id: "+projectId+" this project does not exist");
+        }
+        projectRepository.delete(project);
+    }
+
 }

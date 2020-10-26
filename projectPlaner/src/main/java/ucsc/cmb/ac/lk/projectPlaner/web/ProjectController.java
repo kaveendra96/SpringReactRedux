@@ -17,6 +17,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/project")
+@CrossOrigin
 public class ProjectController {
 
     @Autowired
@@ -39,4 +40,14 @@ public class ProjectController {
         Project project = projectService.findProjectByIdentifer(projectId.toUpperCase());
         return new ResponseEntity<Project>(project,HttpStatus.OK);
     }
+    @GetMapping("/all")
+    public Iterable<Project> getAllProjects(){
+        return projectService.findAllProject();
+    }
+    @DeleteMapping("/{projectId}")
+    public ResponseEntity<?> deleteProject(@PathVariable String projectId){
+        projectService.deleteProjectByIdentifier(projectId);
+        return new ResponseEntity<String>("Project with Id :"+projectId.toUpperCase()+" was deleted",HttpStatus.OK);
+    }
+
 }

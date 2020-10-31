@@ -3,7 +3,6 @@ import CreateProjectButton from './Project/CreateProjectButton'
 import ProjectItem from './Project/ProjectItem'
 import {connect} from 'react-redux'
 import {getProjects} from '../actions/projectActions'
-import errorReducer from '../reducers/errorReducer'
 import PropTypes from 'prop-types'
 
 class Dashboard extends Component {

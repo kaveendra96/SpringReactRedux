@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import ucsc.cmb.ac.lk.projectPlaner.domain.User;
+import ucsc.cmb.ac.lk.projectPlaner.exceptions.UserNameAlreadyExistsException;
 import ucsc.cmb.ac.lk.projectPlaner.repositories.UserRepository;
 
 @Service
@@ -15,11 +16,14 @@ public class UserService {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public User saveUser(User newUser) {
-        newUser.setPassword(bCryptPasswordEncoder.encode(newUser.getPassword()));
+        try {
+            newUser.setPassword(bCryptPasswordEncoder.encode(newUser.getPassword()));
+            newUser.setUsername(newUser.getUsername());
 
-
-
-        return userRepository.save(newUser);
+            return userRepository.save(newUser);
+        } catch (Exception e) {
+            throw new UserNameAlreadyExistsException("UserName  : " + newUser.getUsername() + " already exsist");
+        }
     }
 
 }

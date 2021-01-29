@@ -4,9 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ucsc.cmb.ac.lk.projectPlaner.domain.Backlog;
 import ucsc.cmb.ac.lk.projectPlaner.domain.Project;
+import ucsc.cmb.ac.lk.projectPlaner.domain.User;
 import ucsc.cmb.ac.lk.projectPlaner.exceptions.ProjectIdException;
 import ucsc.cmb.ac.lk.projectPlaner.repositories.BacklogRepository;
 import ucsc.cmb.ac.lk.projectPlaner.repositories.ProjectRepository;
+import ucsc.cmb.ac.lk.projectPlaner.repositories.UserRepository;
 
 
 @Service
@@ -18,8 +20,15 @@ public class ProjectService {
     @Autowired
     private BacklogRepository backlogRepository;
 
-    public Project saveOrUpdateProject(Project project) {
+    @Autowired
+    private UserRepository userRepository;
+
+    public Project saveOrUpdateProject(Project project,String username) {
         try {
+
+            User user = userRepository.findByUsername(username);
+            project.setUser(user);
+            project.setProjectLeader(user.getUsername());
             project.setProjectIdentifier(project.getProjectIdentifier().toUpperCase());
 
             if (project.getId() == null) {

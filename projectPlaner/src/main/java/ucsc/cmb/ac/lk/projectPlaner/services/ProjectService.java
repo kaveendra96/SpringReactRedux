@@ -6,6 +6,7 @@ import ucsc.cmb.ac.lk.projectPlaner.domain.Backlog;
 import ucsc.cmb.ac.lk.projectPlaner.domain.Project;
 import ucsc.cmb.ac.lk.projectPlaner.domain.User;
 import ucsc.cmb.ac.lk.projectPlaner.exceptions.ProjectIdException;
+import ucsc.cmb.ac.lk.projectPlaner.exceptions.ProjectNotFoundException;
 import ucsc.cmb.ac.lk.projectPlaner.repositories.BacklogRepository;
 import ucsc.cmb.ac.lk.projectPlaner.repositories.ProjectRepository;
 import ucsc.cmb.ac.lk.projectPlaner.repositories.UserRepository;
@@ -24,6 +25,16 @@ public class ProjectService {
     private UserRepository userRepository;
 
     public Project saveOrUpdateProject(Project project,String username) {
+
+        if (project.getId() != null) {
+            Project exsitingProject = projectRepository.findByProjectIdentifier(project.getProjectIdentifier());
+            if (exsitingProject !=null && (!exsitingProject.getProjectLeader().equals(username))) {
+                throw new ProjectNotFoundException("Project not found in your account");
+            } else if (exsitingProject==null) {
+                throw new ProjectNotFoundException("Project with ID: "+project.getProjectIdentifier()+" cannot be updated beacuse it doesn`t exist");
+            }
+        }
+
         try {
 
             User user = userRepository.findByUsername(username);
@@ -51,32 +62,28 @@ public class ProjectService {
     }
 
 
-    public Project findProjectByIdentifier(String projectId) {
+    public Project findProjectByIdentifier(String projectId,String username) {
 
         Project project = projectRepository.findByProjectIdentifier(projectId.toUpperCase());
 
         if (project == null) {
             throw new ProjectIdException("Project ID '" + projectId + "' does not exist");
-
+        }
+        if (project.getProjectLeader().equals(username)){
+            throw new ProjectNotFoundException("Project Not Found in your account");
         }
 
 
         return project;
     }
 
-    public Iterable<Project> findAllProjects() {
-        return projectRepository.findAll();
+    public Iterable<Project> findAllProjects(String username ) {
+        return projectRepository.findAllByProjectLeader(username);
     }
 
 
-    public void deleteProjectByIdentifier(String projectid) {
-        Project project = projectRepository.findByProjectIdentifier(projectid.toUpperCase());
-
-        if (project == null) {
-            throw new ProjectIdException("Cannot Project with ID '" + projectid + "'. This project does not exist");
-        }
-
-        projectRepository.delete(project);
+    public void deleteProjectByIdentifier(String projectid,String username) {
+        projectRepository.delete(findProjectByIdentifier(projectid,username));
     }
 
 }
